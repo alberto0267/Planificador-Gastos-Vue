@@ -9,9 +9,14 @@ const emit = defineEmits([
   "update:nombre",
   "update:cantidad",
   "update:categoria",
+  "eliminar-gasto",
 ]);
 
 const props = defineProps({
+  modal: {
+    type: Object,
+    required: true,
+  },
   nombre: {
     type: String,
     required: true,
@@ -28,15 +33,24 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  id: {
+    type: String,
+    default: null,
+    required: false,
+  },
 });
 // console.log(typeof + "cantidad");
-
+const disponibleOld = props.cantidad;
+console.log("la cantidad old  es: ", disponibleOld);
+// console.log("el disponible actual es: ", props.disponible);
+console.log("id funcion", props.id);
 const error = ref("");
 const agregarGastos = () => {
   console.log("agregando");
 
   //Destructurar
-  const { nombre, cantidad, categoria, disponible } = props;
+  const { nombre, cantidad, categoria, disponible, id } = props;
+
   //Validar que no hay campos vacios
   if ([nombre, cantidad, categoria].includes("")) {
     // console.log("estan vacios.");
@@ -58,13 +72,21 @@ const agregarGastos = () => {
 
   //Validar que gasto no sea mayor que disponible
 
-  if (cantidad > disponible) {
-    error.value =
-      "No puedes gastar mas de lo que tienes disponible = " + disponible;
-    setTimeout(() => {
-      error.value = "";
-    }, 1000);
-    return;
+  if (id) {
+    console.log("el disponible actual en id es: ", props.disponible);
+
+    console.log("Entra en Id");
+
+    // if(cantidad + disponible>)
+  } else {
+    if (cantidad > disponible) {
+      error.value =
+        "No puedes gastar mas de lo que tienes disponible = " + disponible;
+      setTimeout(() => {
+        error.value = "";
+      }, 1000);
+      return;
+    }
   }
 
   console.log("Enviando...");
@@ -78,13 +100,13 @@ const agregarGastos = () => {
 </script>
 
 <template>
-  <div class="modal">
+  <div class="modal" v-if="modal.mostrar">
     <div class="cerrar-modal">
       <img :src="CerrarModal" alt="" @click="$emit('ocultar-modal')" />
     </div>
     <div class="contenedor">
       <form action="" @submit.prevent="agregarGastos">
-        <legend>Añadir Gasto</legend>
+        <legend>{{ id ? "Editando Gasto" : "Añadir Gasto" }}</legend>
         <Alerta v-if="error">
           {{ error }}
         </Alerta>
@@ -125,8 +147,16 @@ const agregarGastos = () => {
             <option value="suscripciones">Suscripciones</option>
           </select>
         </div>
-        <input type="submit" value="Añadir Gasto" />
+        <input type="submit" :value="[id ? 'Editar Gasto' : 'Añadir Gasto']" />
       </form>
+      <button
+        type="button"
+        class="btn-eliminar"
+        v-if="props.id"
+        @click="$emit('eliminar-gasto')"
+      >
+        Eliminar Gasto
+      </button>
     </div>
   </div>
 </template>
@@ -199,5 +229,20 @@ input[type="submit"] {
 
 input[type="submit"]:hover {
   background-color: #2563eb;
+}
+.btn-eliminar {
+  margin-top: 8rem;
+  background-color: rgba(190, 17, 17, 0.846);
+  color: white;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 1rem;
+  font-weight: bold;
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.btn-eliminar:hover {
+  background-color: red;
 }
 </style>

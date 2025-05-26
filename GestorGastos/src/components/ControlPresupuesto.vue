@@ -1,8 +1,13 @@
 <script setup>
-import imagen from "../assets/img/grafico.jpg";
+// import imagen from "../assets/img/grafico.jpg";
+import { computed } from "vue";
+import CircleProgress from "vue3-circle-progress";
+import "vue3-circle-progress/dist/circle-progress.css";
 
 //Se creo esto para hacer una const de moneda, asi reutilizarla.
 import { formatearCantidad } from "../helpers";
+
+const emit = defineEmits(["reiniciar"]);
 
 const props = defineProps({
   presupuesto: {
@@ -18,12 +23,24 @@ const props = defineProps({
     required: true,
   },
 });
+const porcentaje = computed(() => {
+  return parseInt(
+    ((props.presupuesto - props.disponible) / props.presupuesto) * 100
+  );
+});
 </script>
 
 <template>
   <div class="dos-columnas">
     <div class="contenedor-graficos">
-      <img :src="imagen" alt="" />
+      <!-- <img :src="imagen" alt="" /> -->
+      <p class="porcentaje">{{ porcentaje }} %</p>
+      <CircleProgress
+        :percent="porcentaje"
+        :size="250"
+        :border-width="30"
+        :border-bg-width="30"
+      />
     </div>
     <div class="contenedor-presupuesto">
       <p>
@@ -38,12 +55,24 @@ const props = defineProps({
         <span>Gastado: </span>
         {{ formatearCantidad(totalGastado) }}
       </p>
-      <button class="reset-app">Resetear</button>
+      <button class="reset-app" @click="$emit('reiniciar')">Resetear</button>
     </div>
   </div>
 </template>
 
 <style scoped>
+.contenedor-graficos {
+  position: relative;
+}
+.porcentaje {
+  position: absolute;
+  margin: auto;
+  top: calc(50% - 5rem);
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--gris-oscuro);
+}
 .dos-columnas {
   display: flex;
   flex-direction: column;
@@ -81,7 +110,7 @@ const props = defineProps({
     font-size: 3rem;
     font-weight: bold;
     padding: 1rem;
-    border-bottom: 1px solid black;
+    /* border-bottom: 1px solid black; */
   }
 }
 </style>
